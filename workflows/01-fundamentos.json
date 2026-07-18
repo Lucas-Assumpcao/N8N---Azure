@@ -1,0 +1,100 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "51722074-b549-4c23-9267-05f7cb58391e",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ecc751cd-01cd-4e3f-b3b1-e415d86cb3fe",
+      "name": "Webhook",
+      "webhookId": "51722074-b549-4c23-9267-05f7cb58391e"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b99dfa04-4235-419f-b5e4-9f7582f01acb",
+              "name": "mensagem",
+              "value": "Olá, seu workflow está funcionando!",
+              "type": "string"
+            },
+            {
+              "id": "63b90c41-a942-453a-a51b-6de371fe8d65",
+              "name": "status",
+              "value": "ok",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "57e1e605-cba5-4416-be67-78c3b91f2c50",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        416,
+        0
+      ],
+      "id": "6592976d-7eaa-4e1f-9be6-25894fc49a37",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b7d1b833-ccfe-42f8-9bf4-a8aa1c75b4d1",
+  "meta": {
+    "instanceId": "877fb832950e5d02c00ad35be6250b47ee3a5a96bc08fdbea03d58b62424ee5f"
+  },
+  "nodeGroups": [],
+  "id": "LWHDuUoNWcOmnu2n",
+  "tags": []
+}

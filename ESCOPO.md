@@ -38,9 +38,9 @@ atendente-ia-n8n/
 ## Fases e critério de "pronto"
 
 ### Fase 1 — Fundamentos do n8n
-- [ ] n8n instalado e rodando local (npm)
-- [ ] Entendido: Trigger → Node → Node
-- [ ] Workflow simples: Webhook recebe requisição → responde JSON
+- [x] n8n instalado e rodando local (npm)
+- [x] Entendido: Trigger → Node → Node
+- [x] Workflow simples: Webhook recebe requisição → responde JSON
 - **Critério de pronto:** workflow testado com sucesso via requisição manual (Postman/curl)
 
 ### Fase 2 — Conectar Azure AI Foundry
