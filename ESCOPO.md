@@ -9,11 +9,31 @@ Construir um atendente automatizado (WhatsApp/Telegram) que responde clientes de
 ## Stack
 | Camada | Ferramenta |
 |---|---|
+| Linguagem | JavaScript (Code nodes do n8n, nativo do ecossistema Node.js) |
 | Orquestração | n8n (self-host via npm) |
 | LLM | Azure AI Foundry — `gpt-4.1-mini` |
 | Canal de entrada | Telegram (fase inicial) → WhatsApp (Evolution API, fase final) |
 | Base de conhecimento | Markdown/FAQ → Vector Store (Pinecone/Qdrant/pgvector) |
 | Deploy final | Docker (fase 6, ainda não iniciada) |
+
+> Nota: Python fica de fora deste projeto de propósito — mantém o roadmap de LLM+Python separado e sem sobreposição de aprendizado.
+
+## Estrutura do repositório
+```
+atendente-ia-n8n/
+├── README.md
+├── ESCOPO.md
+├── workflows/
+│   ├── 01-fundamentos.json
+│   ├── 02-azure-integration.json
+│   ├── 03-tool-calling.json
+│   ├── 04-rag.json
+│   └── 05-canal-entrada.json
+├── docs/
+│   └── (prints/GIFs do workflow rodando, um por fase)
+└── .env.example        ← variáveis de ambiente sem valores reais (nunca commitar credenciais)
+```
+> Cada fase concluída = exportar o workflow (JSON) e commitar em `workflows/`. Isso cria um histórico visual de evolução do projeto, útil para o portfólio.
 
 ## Fases e critério de "pronto"
 
