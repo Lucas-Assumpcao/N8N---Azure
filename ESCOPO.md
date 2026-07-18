@@ -1,7 +1,7 @@
 # Escopo do Projeto — Atendente IA para Pequenos Negócios
 
 ## Status
-🟡 Em andamento — Fase 1
+🟡 Em andamento — Fase 4
 
 ## Objetivo
 Construir um atendente automatizado (WhatsApp/Telegram) que responde clientes de pequenos negócios usando IA, orquestrado via n8n e Azure AI Foundry (`gpt-4.1-mini`). Serve como projeto de portfólio e como serviço vendável (setup + mensalidade).
@@ -54,7 +54,7 @@ atendente-ia-n8n/
 - **Critério de pronto:** agente decide corretamente quando chamar cada tool, sem intervenção manual
 
 ### Fase 4 — RAG
-- [ ] Vector Store configurado (a definir: Pinecone/Qdrant/pgvector)
+- [ ] Vector Store configurado — **v1: In-Memory Vector Store** (nativo do n8n, sem SQL/Docker). Migração futura para Postgres/pgvector planejada para quando o conteúdo de banco de dados do curso avançar.
 - [ ] Base de conhecimento carregada (FAQ de negócio fictício ou real)
 - **Critério de pronto:** resposta correta baseada em contexto, com top_k=3 validado
 
@@ -75,8 +75,9 @@ atendente-ia-n8n/
 - Painel administrativo visual
 - Cobrança/pagamento automatizado
 
-## Decisões técnicas
-- Optamos pelo endpoint **OpenAI do Azure** (`/openai/v1/chat/completions`) em vez do endpoint de "projeto" do AI Foundry, por ser mais direto para chamadas HTTP REST puras (o endpoint de projeto é otimizado para uso via SDK).
-- Autenticação feita via **Credential do n8n (Header Auth)**, mantendo a API Key fora do JSON exportável do workflow — segurança para versionamento no GitHub.
-- Parâmetros de tools que exigem cálculo/conhecimento do modelo (ex: coordenadas geográficas) precisam de descrições explícitas instruindo o modelo a fazer a conversão sozinho — sem isso, ele tenta passar o valor bruto (nome da cidade) e a API externa rejeita.
-- O node "Code Tool" do n8n exige retorno em formato string, não objeto — diferente do HTTP Request Tool, que aceita JSON estruturado da API externa.
+## Decisões técnicas (atualizar conforme o projeto avança)
+> Registrar aqui escolhas importantes e o porquê — útil para o README final e para entrevistas.
+
+- **Fase 2:** Optamos pelo endpoint OpenAI do Azure (`/openai/v1/chat/completions`) em vez do endpoint de "projeto" do AI Foundry, por ser mais direto para chamadas HTTP REST puras (o endpoint de projeto é otimizado para uso via SDK). Autenticação feita via Credential do n8n (Header Auth), mantendo a API Key fora do JSON exportável do workflow — segurança para versionamento no GitHub.
+- **Fase 3:** Parâmetros de tools que exigem cálculo/conhecimento do modelo (ex: coordenadas geográficas) precisam de descrições explícitas instruindo o modelo a fazer a conversão sozinho — sem isso, ele tenta passar o valor bruto (nome da cidade) e a API externa rejeita. O node "Code Tool" do n8n exige retorno em formato string, não objeto — diferente do HTTP Request Tool, que aceita JSON estruturado da API externa.
+- **Fase 4:** Iniciada com **In-Memory Vector Store** em vez de Postgres/pgvector, pois o conteúdo de banco de dados do curso ainda não foi cursado. Decisão consciente: valida o conceito de RAG (chunking, embeddings, similarity search) sem bloquear o progresso. Migração para pgvector prevista como evolução natural (v2), assim que SQL for estudado no semestre — sem necessidade de retrabalho da lógica de RAG em si.
