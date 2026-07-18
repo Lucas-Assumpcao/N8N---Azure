@@ -1,7 +1,7 @@
 # Escopo do Projeto — Atendente IA para Pequenos Negócios
 
 ## Status
-🟡 Em andamento — Fase 4
+🟡 Em andamento — Fase 5
 
 ## Objetivo
 Construir um atendente automatizado (WhatsApp/Telegram) que responde clientes de pequenos negócios usando IA, orquestrado via n8n e Azure AI Foundry (`gpt-4.1-mini`). Serve como projeto de portfólio e como serviço vendável (setup + mensalidade).
@@ -23,6 +23,7 @@ Construir um atendente automatizado (WhatsApp/Telegram) que responde clientes de
 atendente-ia-n8n/
 ├── README.md
 ├── ESCOPO.md
+├── faq-loja.md         ← base de conhecimento fictícia usada no RAG (Fase 4)
 ├── workflows/
 │   ├── 01-fundamentos.json
 │   ├── 02-azure-integration.json
@@ -54,9 +55,9 @@ atendente-ia-n8n/
 - **Critério de pronto:** agente decide corretamente quando chamar cada tool, sem intervenção manual
 
 ### Fase 4 — RAG
-- [ ] Vector Store configurado — **v1: In-Memory Vector Store** (nativo do n8n, sem SQL/Docker). Migração futura para Postgres/pgvector planejada para quando o conteúdo de banco de dados do curso avançar.
-- [ ] Base de conhecimento carregada (FAQ de negócio fictício ou real)
-- **Critério de pronto:** resposta correta baseada em contexto, com top_k=3 validado
+- [x] Vector Store configurado — **v1: Simple Vector Store (in-memory)**, nativo do n8n, sem SQL/Docker. Migração futura para Postgres/pgvector planejada para quando o conteúdo de banco de dados do curso avançar.
+- [x] Base de conhecimento carregada (FAQ fictício de loja — horário, contato, endereço, pagamento, troca/devolução, entrega, garantia, fidelidade)
+- **Critério de pronto:** resposta correta baseada em contexto — validado com pergunta sobre política de troca, resposta gerada bateu 100% com o conteúdo do FAQ indexado
 
 ### Fase 5 — Canal de entrada real
 - [ ] Telegram funcionando ponta a ponta
@@ -80,4 +81,6 @@ atendente-ia-n8n/
 
 - **Fase 2:** Optamos pelo endpoint OpenAI do Azure (`/openai/v1/chat/completions`) em vez do endpoint de "projeto" do AI Foundry, por ser mais direto para chamadas HTTP REST puras (o endpoint de projeto é otimizado para uso via SDK). Autenticação feita via Credential do n8n (Header Auth), mantendo a API Key fora do JSON exportável do workflow — segurança para versionamento no GitHub.
 - **Fase 3:** Parâmetros de tools que exigem cálculo/conhecimento do modelo (ex: coordenadas geográficas) precisam de descrições explícitas instruindo o modelo a fazer a conversão sozinho — sem isso, ele tenta passar o valor bruto (nome da cidade) e a API externa rejeita. O node "Code Tool" do n8n exige retorno em formato string, não objeto — diferente do HTTP Request Tool, que aceita JSON estruturado da API externa.
-- **Fase 4:** Iniciada com **In-Memory Vector Store** em vez de Postgres/pgvector, pois o conteúdo de banco de dados do curso ainda não foi cursado. Decisão consciente: valida o conceito de RAG (chunking, embeddings, similarity search) sem bloquear o progresso. Migração para pgvector prevista como evolução natural (v2), assim que SQL for estudado no semestre — sem necessidade de retrabalho da lógica de RAG em si.
+- **Fase 4:** Iniciada com **In-Memory (Simple) Vector Store** em vez de Postgres/pgvector, pois o conteúdo de banco de dados do curso ainda não foi cursado. Decisão consciente: valida o conceito de RAG (chunking, embeddings, similarity search) sem bloquear o progresso. Migração para pgvector prevista como evolução natural (v2), assim que SQL for estudado no semestre — sem necessidade de retrabalho da lógica de RAG em si.
+- **Fase 4 (debugging):** Vector Stores em memória não compartilham dados entre workflows diferentes — inserção (Insert Documents) e busca (Retrieve Documents) precisam estar no MESMO workflow para acessar a mesma instância de memória. Sub-nodes de Tool (Vector Store como Tool, HTTP Request Tool, etc.) não devem ser testados isoladamente com "Execute step" a partir do zero do fluxo — isso trava esperando o node Webhook disparar de verdade. Testar via modal próprio ("Test Vector Store") ou via execução completa disparada pela Test URL do Webhook.
+- **Fase 4 (armadilha de fluxo):** Depois de reconectar o AI Agent, sempre conferir se nodes de fases anteriores (ex: o HTTP Request fixo da Fase 2, ou o Edit Fields com valores fixos da Fase 1) não ficaram presos em série no meio do fluxo, descartando silenciosamente o output do node novo.
