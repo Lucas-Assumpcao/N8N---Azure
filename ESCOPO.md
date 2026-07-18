@@ -49,8 +49,8 @@ atendente-ia-n8n/
 - **Critério de pronto:** resposta correta e consistente em pelo menos 5 perguntas de teste
 
 ### Fase 3 — Tool Calling
-- [ ] Node AI Agent configurado
-- [ ] 1 tool reaproveitada (Open-Meteo) + 1 tool nova (ex: consulta de preços/horários)
+- [x] Node AI Agent configurado
+- [x] 1 tool reaproveitada (Open-Meteo) + 1 tool nova (ex: consulta de preços/horários)
 - **Critério de pronto:** agente decide corretamente quando chamar cada tool, sem intervenção manual
 
 ### Fase 4 — RAG
@@ -78,3 +78,5 @@ atendente-ia-n8n/
 ## Decisões técnicas
 - Optamos pelo endpoint **OpenAI do Azure** (`/openai/v1/chat/completions`) em vez do endpoint de "projeto" do AI Foundry, por ser mais direto para chamadas HTTP REST puras (o endpoint de projeto é otimizado para uso via SDK).
 - Autenticação feita via **Credential do n8n (Header Auth)**, mantendo a API Key fora do JSON exportável do workflow — segurança para versionamento no GitHub.
+- Parâmetros de tools que exigem cálculo/conhecimento do modelo (ex: coordenadas geográficas) precisam de descrições explícitas instruindo o modelo a fazer a conversão sozinho — sem isso, ele tenta passar o valor bruto (nome da cidade) e a API externa rejeita.
+- O node "Code Tool" do n8n exige retorno em formato string, não objeto — diferente do HTTP Request Tool, que aceita JSON estruturado da API externa.

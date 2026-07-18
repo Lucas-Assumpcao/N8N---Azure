@@ -1,0 +1,272 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "51722074-b549-4c23-9267-05f7cb58391e",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ecc751cd-01cd-4e3f-b3b1-e415d86cb3fe",
+      "name": "Webhook",
+      "webhookId": "51722074-b549-4c23-9267-05f7cb58391e"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b99dfa04-4235-419f-b5e4-9f7582f01acb",
+              "name": "mensagem",
+              "value": "Olá, seu workflow está funcionando!",
+              "type": "string"
+            },
+            {
+              "id": "63b90c41-a942-453a-a51b-6de371fe8d65",
+              "name": "status",
+              "value": "ok",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        784,
+        0
+      ],
+      "id": "57e1e605-cba5-4416-be67-78c3b91f2c50",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        992,
+        0
+      ],
+      "id": "6592976d-7eaa-4e1f-9be6-25894fc49a37",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://turismoia.openai.azure.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"gpt-4.1-mini\",\n  \"messages\": [\n    {\"role\": \"user\", \"content\": \"Explique o que é uma API em uma frase simples.\"}\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        576,
+        0
+      ],
+      "id": "0e9c865f-5839-4fe6-80dd-3d52fe81ca66",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "dXJ2e7jaL2zhrqmW",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "\"Qual o telefone de contato?\"",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "94cb28e3-3ca4-4d6d-97a5-fa35a566bf58",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4.1-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "cecc741a-dcf1-4132-b1eb-9d07974d20e7",
+      "name": "Azure OpenAI Chat Model",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "tuAqAXFlkOHSYIHw",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Retorna a previsão do tempo atual para uma cidade/coordenadas",
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `Latitude em graus decimais (ex: -23.55 para São Paulo). Você deve converter o nome da cidade para as coordenadas você mesmo, usando seu próprio conhecimento. Nunca passe o nome da cidade aqui.`, 'string') }}"
+            },
+            {
+              "name": "longitude",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `Longitude em graus decimais (ex: -46.63 para São Paulo). Você deve converter o nome da cidade para as coordenadas você mesmo. Nunca passe o nome da cidade aqui.`, 'string') }}"
+            },
+            {
+              "name": "current_weather",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        432,
+        288
+      ],
+      "id": "653f6430-b417-4629-b86c-15c433bd2bb0",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "description": "Retorna o horário de funcionamento, telefone e endereço da nossa loja (é a única loja que você atende). Use sempre que o cliente perguntar sobre horários, funcionamento, contato ou endereço — não pergunte qual loja, é sempre esta.",
+        "jsCode": "return \"Horário de funcionamento: Segunda a sexta, das 9h às 18h. Sábados, das 9h às 13h. Telefone: (11) 4002-8922. Endereço: Rua Fictícia, 123 - Osasco, SP.\";"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        256
+      ],
+      "id": "fae98b65-b9ff-40d3-bb7f-4e8409bf052c",
+      "name": "Code Tool"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "639579dd-f8ca-45eb-ad60-94b7c7667e3d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "877fb832950e5d02c00ad35be6250b47ee3a5a96bc08fdbea03d58b62424ee5f"
+  },
+  "nodeGroups": [],
+  "id": "LWHDuUoNWcOmnu2n",
+  "tags": []
+}
