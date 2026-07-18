@@ -44,8 +44,8 @@ atendente-ia-n8n/
 - **Critério de pronto:** workflow testado com sucesso via requisição manual (Postman/curl)
 
 ### Fase 2 — Conectar Azure AI Foundry
-- [ ] Node HTTP Request configurado com autenticação Azure
-- [ ] Workflow recebe pergunta → retorna resposta do `gpt-4.1-mini`
+- [x] Node HTTP Request configurado com autenticação Azure
+- [x] Workflow recebe pergunta → retorna resposta do `gpt-4.1-mini`
 - **Critério de pronto:** resposta correta e consistente em pelo menos 5 perguntas de teste
 
 ### Fase 3 — Tool Calling
@@ -75,7 +75,6 @@ atendente-ia-n8n/
 - Painel administrativo visual
 - Cobrança/pagamento automatizado
 
-## Decisões técnicas (atualizar conforme o projeto avança)
-> Registrar aqui escolhas importantes e o porquê — útil para o README final e para entrevistas.
-
-- *(vazio ainda — preencher a partir da Fase 1)*
+## Decisões técnicas
+- Optamos pelo endpoint **OpenAI do Azure** (`/openai/v1/chat/completions`) em vez do endpoint de "projeto" do AI Foundry, por ser mais direto para chamadas HTTP REST puras (o endpoint de projeto é otimizado para uso via SDK).
+- Autenticação feita via **Credential do n8n (Header Auth)**, mantendo a API Key fora do JSON exportável do workflow — segurança para versionamento no GitHub.
