@@ -67,9 +67,9 @@ atendente-ia-n8n/
 ### Fase 6 — Produção (dividida em 2 etapas)
 
 **Etapa 6.1 — Agora (sem Docker, sem banco de dados)**
-- [ ] Memory por usuário (histórico de conversa) — via Buffer Memory do n8n, por chat ID, sem SQL
-- [ ] Fallback para humano — lógica condicional simples (IF), sem infraestrutura extra
-- [ ] Log de custo/latência — registrado em Google Sheets ou arquivo simples, sem banco de dados
+- [x] Memory por usuário (histórico de conversa) — via Simple Memory do n8n, sessionId = chat.id do Telegram
+- [x] Fallback para humano — System Message instrui o modelo a prefixar respostas incertas com "FALLBACK", node IF (contains) desvia para mensagem padrão de transferência
+- [x] Log de custo/latência — registrado em arquivo CSV local (`C:\n8n-logs\logs-atendente.csv`), via Edit Fields → Convert to File → Read/Write Files from Disk. Campos: data/hora, chat_id, pergunta, tokens (pendente de captura correta, hoje "N/A"), latência (pendente, hoje "N/A"), uso de fallback (sim/nao)
 - **Critério de pronto:** as 3 funcionalidades operando via Telegram, sem intervenção manual
 
 **Etapa 6.2 — Depois (Docker básico, quando houver tempo/disposição)**
@@ -99,6 +99,7 @@ atendente-ia-n8n/
    ```powershell
    $env:NODE_OPTIONS="--dns-result-order=ipv4first"
    $env:WEBHOOK_URL="https://SUA-NOVA-URL-NGROK.ngrok-free.dev/"
+   $env:N8N_RESTRICT_FILE_ACCESS_TO="C:\n8n-logs"
    n8n start
    ```
    (não esquecer a barra `/` no final da URL)
@@ -121,3 +122,6 @@ atendente-ia-n8n/
 - **Fase 5 (debugging - rede):** Conexões do processo Node.js do n8n para `api.telegram.org` davam timeout, mesmo com o mesmo domínio acessível via navegador e PowerShell (`curl`/`Invoke-WebRequest`). Causa: Node.js tentando IPv6 primeiro em uma rede/provedor com IPv6 mal configurado. Solução: variável de ambiente `NODE_OPTIONS="--dns-result-order=ipv4first"` antes de iniciar o n8n, forçando IPv4 primeiro. Firewall do Windows e antivírus (Avast) foram descartados como causa após testes isolados.
 - **Fase 5 (debugging - fluxo):** O modo de teste do editor n8n ("Listen for test event" + "Execute step" manual por node) não substitui o teste real — só o modo **Ativo/Published** do workflow processa mensagens do Telegram automaticamente, de ponta a ponta, sem intervenção manual em cada node.
 - **Fase 5 (debugging - expressão):** O campo "Prompt (User Message)" do AI Agent precisa estar no modo **Expression** (não "Fixed"), senão `{{ $json.message.text }}` é enviado como texto literal para o modelo em vez de ser resolvido para o valor real — causando respostas genéricas e nenhuma tool sendo chamada.
+- **Fase 6.1 (Fallback):** Modelos de linguagem não reproduzem formatos rígidos com 100% de consistência (variação de espaços, hífen, etc. em torno da palavra-chave definida no System Message). Detecção via node IF deve usar "contains" (não "is equal to"), procurando apenas a palavra-chave (ex: "FALLBACK"), nunca uma string exata — isso absorve variações naturais do modelo sem quebrar a lógica de desvio.
+- **Fase 6.1 (Log de arquivo — debugging):** O node "Read/Write Files from Disk" retorna erro genérico "The file is not writable" mesmo com permissões de sistema corretas (confirmado via PowerShell `Add-Content` funcionando normalmente) — não é bug de Windows, antivírus ou permissão de pasta. Desde versões recentes, o n8n restringe por padrão o acesso a caminhos de disco por segurança. Correção: definir a variável de ambiente `N8N_RESTRICT_FILE_ACCESS_TO` apontando para a pasta desejada (ex: `C:\n8n-logs`) antes de iniciar o n8n. Nodes "Convert to File" (Text Input Field) e "Read/Write Files from Disk" (Input Binary Field) usam nomes de campo (ex: `linha_csv`, `data`), não expressões `{{ }}`.
+- **Fase 6.1 (Log — pendências conhecidas):** A quebra de linha `\n` inserida via expressão no Edit Fields é gravada como caractere literal, não como quebra de linha real — cosmético, não impede o registro dos dados. Também pendente: captura de tokens reais (`tokenUsage`) e latência real (hoje "N/A" nos dois), a resolver em iteração futura sem bloquear o restante do projeto.
