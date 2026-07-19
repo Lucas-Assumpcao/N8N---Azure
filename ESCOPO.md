@@ -1,7 +1,7 @@
 # Escopo do Projeto — Atendente IA para Pequenos Negócios
 
 ## Status
-🟡 Em andamento — Fase 5
+🟡 Em andamento — Fase 6
 
 ## Objetivo
 Construir um atendente automatizado (WhatsApp/Telegram) que responde clientes de pequenos negócios usando IA, orquestrado via n8n e Azure AI Foundry (`gpt-4.1-mini`). Serve como projeto de portfólio e como serviço vendável (setup + mensalidade).
@@ -60,9 +60,9 @@ atendente-ia-n8n/
 - **Critério de pronto:** resposta correta baseada em contexto — validado com pergunta sobre política de troca, resposta gerada bateu 100% com o conteúdo do FAQ indexado
 
 ### Fase 5 — Canal de entrada real
-- [ ] Telegram funcionando ponta a ponta
+- [x] Telegram funcionando ponta a ponta
 - [ ] WhatsApp via Evolution API (opcional, se houver tempo/recurso)
-- **Critério de pronto:** conversa completa funcionando no canal escolhido
+- **Critério de pronto:** conversa completa funcionando no canal escolhido — validado: pergunta sobre horário de funcionamento respondida corretamente via Telegram, com RAG ativo
 
 ### Fase 6 — Produção
 - [ ] Memory por usuário (histórico de conversa)
@@ -76,6 +76,29 @@ atendente-ia-n8n/
 - Painel administrativo visual
 - Cobrança/pagamento automatizado
 
+## Como reiniciar o ambiente (a cada nova sessão de trabalho)
+> Necessário porque o Simple Vector Store perde dados ao reiniciar o n8n, e o ngrok gratuito gera uma URL nova a cada execução.
+
+1. **Iniciar o túnel ngrok** (em um terminal):
+   ```powershell
+   .\ngrok.exe http 5678
+   ```
+   Copiar a nova URL `https://...ngrok-free.dev` gerada.
+
+2. **Iniciar o n8n** (em outro terminal, com as variáveis de ambiente):
+   ```powershell
+   $env:NODE_OPTIONS="--dns-result-order=ipv4first"
+   $env:WEBHOOK_URL="https://SUA-NOVA-URL-NGROK.ngrok-free.dev/"
+   n8n start
+   ```
+   (não esquecer a barra `/` no final da URL)
+
+3. **Repopular o Vector Store**: abrir o workflow, clicar em "Execute workflow" a partir do node **"When clicking 'Execute workflow'"** (topo do canvas) para reinserir o FAQ na memória.
+
+4. **Reativar o workflow**: conferir se o toggle/Publish do workflow está ativo — isso reconecta o Telegram Trigger à nova URL do ngrok automaticamente.
+
+5. **Testar**: mandar uma mensagem no bot do Telegram (`@atendenteassump_bot`) e confirmar resposta.
+
 ## Decisões técnicas (atualizar conforme o projeto avança)
 > Registrar aqui escolhas importantes e o porquê — útil para o README final e para entrevistas.
 
@@ -84,3 +107,7 @@ atendente-ia-n8n/
 - **Fase 4:** Iniciada com **In-Memory (Simple) Vector Store** em vez de Postgres/pgvector, pois o conteúdo de banco de dados do curso ainda não foi cursado. Decisão consciente: valida o conceito de RAG (chunking, embeddings, similarity search) sem bloquear o progresso. Migração para pgvector prevista como evolução natural (v2), assim que SQL for estudado no semestre — sem necessidade de retrabalho da lógica de RAG em si.
 - **Fase 4 (debugging):** Vector Stores em memória não compartilham dados entre workflows diferentes — inserção (Insert Documents) e busca (Retrieve Documents) precisam estar no MESMO workflow para acessar a mesma instância de memória. Sub-nodes de Tool (Vector Store como Tool, HTTP Request Tool, etc.) não devem ser testados isoladamente com "Execute step" a partir do zero do fluxo — isso trava esperando o node Webhook disparar de verdade. Testar via modal próprio ("Test Vector Store") ou via execução completa disparada pela Test URL do Webhook.
 - **Fase 4 (armadilha de fluxo):** Depois de reconectar o AI Agent, sempre conferir se nodes de fases anteriores (ex: o HTTP Request fixo da Fase 2, ou o Edit Fields com valores fixos da Fase 1) não ficaram presos em série no meio do fluxo, descartando silenciosamente o output do node novo.
+- **Fase 5:** Telegram Trigger exige webhook HTTPS — n8n local em `localhost` (HTTP puro) não é aceito pelo Telegram. Solução para desenvolvimento: túnel HTTPS via **ngrok**, apontando pra `localhost:5678`, com a variável de ambiente `WEBHOOK_URL` do n8n configurada para a URL pública do ngrok antes de iniciar (`n8n start`). Em produção (Fase 6), isso será substituído por domínio próprio com certificado real.
+- **Fase 5 (debugging - rede):** Conexões do processo Node.js do n8n para `api.telegram.org` davam timeout, mesmo com o mesmo domínio acessível via navegador e PowerShell (`curl`/`Invoke-WebRequest`). Causa: Node.js tentando IPv6 primeiro em uma rede/provedor com IPv6 mal configurado. Solução: variável de ambiente `NODE_OPTIONS="--dns-result-order=ipv4first"` antes de iniciar o n8n, forçando IPv4 primeiro. Firewall do Windows e antivírus (Avast) foram descartados como causa após testes isolados.
+- **Fase 5 (debugging - fluxo):** O modo de teste do editor n8n ("Listen for test event" + "Execute step" manual por node) não substitui o teste real — só o modo **Ativo/Published** do workflow processa mensagens do Telegram automaticamente, de ponta a ponta, sem intervenção manual em cada node.
+- **Fase 5 (debugging - expressão):** O campo "Prompt (User Message)" do AI Agent precisa estar no modo **Expression** (não "Fixed"), senão `{{ $json.message.text }}` é enviado como texto literal para o modelo em vez de ser resolvido para o valor real — causando respostas genéricas e nenhuma tool sendo chamada.

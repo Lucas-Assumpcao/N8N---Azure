@@ -1,0 +1,449 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "51722074-b549-4c23-9267-05f7cb58391e",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -160,
+        80
+      ],
+      "id": "ecc751cd-01cd-4e3f-b3b1-e415d86cb3fe",
+      "name": "Webhook",
+      "webhookId": "51722074-b549-4c23-9267-05f7cb58391e"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "94cb28e3-3ca4-4d6d-97a5-fa35a566bf58",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4.1-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "cecc741a-dcf1-4132-b1eb-9d07974d20e7",
+      "name": "Azure OpenAI Chat Model",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "tuAqAXFlkOHSYIHw",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Retorna a previsão do tempo atual para uma cidade/coordenadas",
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `Latitude em graus decimais (ex: -23.55 para São Paulo). Você deve converter o nome da cidade para as coordenadas você mesmo, usando seu próprio conhecimento. Nunca passe o nome da cidade aqui.`, 'string') }}"
+            },
+            {
+              "name": "longitude",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `Longitude em graus decimais (ex: -46.63 para São Paulo). Você deve converter o nome da cidade para as coordenadas você mesmo. Nunca passe o nome da cidade aqui.`, 'string') }}"
+            },
+            {
+              "name": "current_weather",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        432,
+        288
+      ],
+      "id": "653f6430-b417-4629-b86c-15c433bd2bb0",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "description": "Retorna o horário de funcionamento, telefone e endereço da nossa loja (é a única loja que você atende). Use sempre que o cliente perguntar sobre horários, funcionamento, contato ou endereço — não pergunte qual loja, é sempre esta.",
+        "jsCode": "return \"Horário de funcionamento: Segunda a sexta, das 9h às 18h. Sábados, das 9h às 13h. Telefone: (11) 4002-8922. Endereço: Rua Fictícia, 123 - Osasco, SP.\";"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        256
+      ],
+      "id": "fae98b65-b9ff-40d3-bb7f-4e8409bf052c",
+      "name": "Code Tool"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -384
+      ],
+      "id": "d4c5fb6a-5408-4f4a-b97d-bce65cf45466",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "35a6a7ef-3493-4cf0-9583-6a7e3effda34",
+              "name": "texto",
+              "value": "# FAQ — Loja Fictícia  ## Horário de Funcionamento Funcionamos de segunda a sexta, das 9h às 18h. Aos sábados, o horário é das 9h às 13h. Não abrimos aos domingos e feriados.  ## Contato Telefone: (11) 4002-8922 E-mail: contato@lojaficticia.com.br WhatsApp: (11) 98765-4321  ## Endereço Rua Fictícia, 123 - Osasco, SP. CEP 06010-000. Estamos a 5 minutos da estação de trem Osasco.  ## Formas de Pagamento Aceitamos cartão de crédito (em até 12x), cartão de débito, PIX e dinheiro. Não trabalhamos com boleto bancário.  ## Política de Troca e Devolução Produtos podem ser trocados em até 7 dias corridos após a compra, mediante apresentação da nota fiscal. Produtos em promoção não são elegíveis para devolução, apenas troca por tamanho ou cor.  ## Entrega Fazemos entrega para toda a Grande São Paulo. O prazo médio é de 3 a 5 dias úteis. O frete é grátis para compras acima de R$ 200.  ## Garantia Todos os produtos possuem garantia de 90 dias contra defeitos de fabricação, conforme o Código de Defesa do Consumidor.  ## Programa de Fidelidade Clientes cadastrados acumulam pontos a cada compra. A cada R$ 100 gastos, você ganha 10 pontos. Pontos podem ser trocados por descontos em compras futuras.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        -384
+      ],
+      "id": "e4ce76ee-e01f-45ed-a319-5274d620baa3",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        432,
+        -384
+      ],
+      "id": "d1442242-f713-47d1-9b6a-a22e1b5e910c",
+      "name": "Simple Vector Store"
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -160
+      ],
+      "id": "60f9cd3e-8eab-482c-9be2-66bc8c3c6dca",
+      "name": "Embeddings Azure OpenAI",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "tuAqAXFlkOHSYIHw",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.texto }}",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        -192
+      ],
+      "id": "d1bb85b0-a073-4f57-9f74-b622b223f7e6",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkSize": 400,
+        "chunkOverlap": 40,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        -208
+      ],
+      "id": "4fc0ce5b-9de2-4b89-b09e-d9e6e55f7626",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Busca informações no FAQ da loja sobre horário de funcionamento, contato, endereço, formas de pagamento, política de troca/devolução, entrega, garantia e programa de fidelidade. Use sempre que o cliente perguntar sobre qualquer uma dessas informações.",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        800,
+        240
+      ],
+      "id": "d150a420-27c3-4951-9359-3e3b25d14526",
+      "name": "Simple Vector Store1"
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        896,
+        336
+      ],
+      "id": "1ac83252-6e1e-4b4e-9a71-65e5a697d1f0",
+      "name": "Embeddings Azure OpenAI1",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "tuAqAXFlkOHSYIHw",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -192,
+        -160
+      ],
+      "id": "16edbaa9-93c3-45ee-bd1a-b49de23f3d35",
+      "name": "Telegram Trigger",
+      "webhookId": "1a8c4001-5fa6-4cdc-9dcf-1b853a0af453",
+      "credentials": {
+        "telegramApi": {
+          "id": "SkDMmocokNHAAABg",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "8517c34f-b1b4-4cf0-b9e3-0cf0aaa13b0a",
+      "name": "Send a text message",
+      "webhookId": "b3abd499-3f53-483a-8997-abc96e9b6ebd",
+      "credentials": {
+        "telegramApi": {
+          "id": "SkDMmocokNHAAABg",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Azure OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Azure OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "dd692332-a042-44fa-a958-c46fe7ae0e98",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "877fb832950e5d02c00ad35be6250b47ee3a5a96bc08fdbea03d58b62424ee5f"
+  },
+  "nodeGroups": [],
+  "id": "LWHDuUoNWcOmnu2n",
+  "tags": []
+}
