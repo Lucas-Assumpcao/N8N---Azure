@@ -64,12 +64,22 @@ atendente-ia-n8n/
 - [ ] WhatsApp via Evolution API (opcional, se houver tempo/recurso)
 - **Critério de pronto:** conversa completa funcionando no canal escolhido — validado: pergunta sobre horário de funcionamento respondida corretamente via Telegram, com RAG ativo
 
-### Fase 6 — Produção
-- [ ] Memory por usuário (histórico de conversa)
-- [ ] Fallback para humano
-- [ ] Log de custo/latência
-- [ ] Deploy via Docker
-- **Critério de pronto:** projeto rodando de forma estável, documentado como template reutilizável
+### Fase 6 — Produção (dividida em 2 etapas)
+
+**Etapa 6.1 — Agora (sem Docker, sem banco de dados)**
+- [ ] Memory por usuário (histórico de conversa) — via Buffer Memory do n8n, por chat ID, sem SQL
+- [ ] Fallback para humano — lógica condicional simples (IF), sem infraestrutura extra
+- [ ] Log de custo/latência — registrado em Google Sheets ou arquivo simples, sem banco de dados
+- **Critério de pronto:** as 3 funcionalidades operando via Telegram, sem intervenção manual
+
+**Etapa 6.2 — Depois (Docker básico, quando houver tempo/disposição)**
+- [ ] Instalar Docker Desktop (Windows, possivelmente via WSL2)
+- [ ] Entender conceitos de imagem vs container
+- [ ] Rodar o n8n dentro de um container Docker básico, sem persistência avançada ainda
+- **Critério de pronto:** n8n rodando via Docker localmente, com o workflow funcionando igual à versão via npm
+- **Fora do escopo desta etapa:** persistência de dados via volumes Docker e deploy em produção real (servidor/VPS) — fica para uma **v3**, planejada para depois que o conteúdo de banco de dados do curso avançar, já que os dois conceitos (dados persistentes em container + banco relacional) se conectam naturalmente.
+
+**Critério de pronto da Fase 6 completa:** projeto rodando de forma estável, documentado como template reutilizável, com Docker básico validado
 
 ## Fora de escopo (por enquanto)
 - Multi-idioma
